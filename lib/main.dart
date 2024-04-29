@@ -1,3 +1,7 @@
+import 'package:fake_jam_pan/pages/AddOrderPage.dart';
+import 'package:fake_jam_pan/pages/FoodItemsPage.dart';
+import 'package:fake_jam_pan/pages/HomePage.dart';
+import 'package:fake_jam_pan/pages/OrderListPage.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -15,29 +19,13 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.orange),
         useMaterial3: true,
       ),
-      home: const MyHomePage(title: 'Fake Jam Pan'),
-    );
-  }
-}
-
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
-
-  final String title;
-
-  @override
-  State<MyHomePage> createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Text(widget.title),
-      ),
-      body: Center(),
+      routes: {
+        '/': (context) => const HomePage(),
+        '/food-items': (context) => const FoodItemsPage(),
+        '/add-order': (context) => const AddOrderPage(),
+        '/order-list': (context) => const OrderListPage(),
+      },
+      debugShowCheckedModeBanner: false,
     );
   }
 }
