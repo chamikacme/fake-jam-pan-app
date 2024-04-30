@@ -2,44 +2,207 @@ import 'package:fake_jam_pan/components/CustomButton.dart';
 import 'package:fake_jam_pan/components/CustomTextFormField.dart';
 import 'package:fake_jam_pan/components/HorizontalGap.dart';
 import 'package:fake_jam_pan/components/VerticleGap.dart';
-import 'package:fake_jam_pan/models/FoodItem.dart';
-import 'package:fake_jam_pan/models/OrderItem.dart';
+import 'package:fake_jam_pan/models/Food.dart';
+import 'package:fake_jam_pan/models/Order.dart';
+import 'package:fake_jam_pan/services/database_helper.dart';
 import 'package:flutter/material.dart';
 
-class AddOrderPage extends StatelessWidget {
-  const AddOrderPage({Key? key}) : super(key: key);
+class AddOrderPage extends StatefulWidget {
+  AddOrderPage({Key? key}) : super(key: key);
+
+  @override
+  State<AddOrderPage> createState() => _AddOrderPageState();
+}
+
+class _AddOrderPageState extends State<AddOrderPage> {
+  final TextEditingController nameController = TextEditingController();
+  final TextEditingController itemController = TextEditingController();
+  final TextEditingController countController = TextEditingController();
+
+  Future<List<Food>> getFoodItemsFromDB() async {
+    final data = await DatabaseHelper.instance.getAllFood();
+    return data.map((item) => Food.fromJson(item)).toList();
+  }
+
+  Future<List<Order>> getRecentOrdersFromDB() async {
+    final data = await DatabaseHelper.instance.getRecentOrders();
+    return data.map((item) => Order.fromJson(item)).toList();
+  }
+
+  String getFoodItemName(int foodId, List<Food> foodItems) {
+    return foodItems.firstWhere((foodItem) => foodItem.id == foodId).name;
+  }
+
+  @override
+  void initState() {
+    countController.text = '1';
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
-    var recentOrders = List<OrderItem>.generate(
-        5,
-        (index) => OrderItem(index.toString() + " name",
-            FoodItem("Rolls", 100.00), 1, true, false));
+    List<Order> recentOrders = [];
+    List<Food> foodItems = [];
 
+    Food? selectedFoodItem;
     return Scaffold(
       appBar: AppBar(
-          backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-          title: const Text(
-            'Add Order',
-          )),
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        title: const Text(
+          'Add Order',
+        ),
+      ),
       body: Column(
         children: [
           Padding(
             padding: const EdgeInsets.all(8.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const Text(
-                  'Recent Orders',
-                  style: TextStyle(
-                    fontStyle: FontStyle.italic,
-                  ),
+                const Text('Name'),
+                CustomTextFormField(
+                  controller: nameController,
                 ),
-                CustomButton(
-                  onPressed: () =>
-                      {Navigator.pushNamed(context, '/order-list')},
-                  buttonText: 'Full List',
-                )
+                VerticleGap(),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          const Text(
+                            'Item',
+                            textAlign: TextAlign.left,
+                          ),
+                          FutureBuilder<List<Food>>(
+                            future: getFoodItemsFromDB(),
+                            builder: (context, snapshot) {
+                              if (snapshot.connectionState ==
+                                  ConnectionState.waiting) {
+                                return const CircularProgressIndicator();
+                              } else if (snapshot.hasError) {
+                                return Text('Error: ${snapshot.error}');
+                              } else if (snapshot.data!.isEmpty) {
+                                return const Text('No food items found');
+                              } else {
+                                selectedFoodItem =
+                                    selectedFoodItem ?? snapshot.data!.first;
+                                foodItems = snapshot.data!;
+                                return Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 10, vertical: 0),
+                                  decoration: BoxDecoration(
+                                    border: Border.all(color: Colors.grey),
+                                    borderRadius: BorderRadius.circular(4),
+                                  ),
+                                  child: DropdownMenu(
+                                    dropdownMenuEntries: snapshot.data!
+                                        .map((foodItem) =>
+                                            DropdownMenuEntry<Food>(
+                                                value: foodItem,
+                                                label: foodItem.name))
+                                        .toList(),
+                                    onSelected: (food) =>
+                                        {selectedFoodItem = food},
+                                    initialSelection: selectedFoodItem,
+                                    inputDecorationTheme:
+                                        const InputDecorationTheme(
+                                      border: InputBorder.none,
+                                    ),
+                                    textStyle: const TextStyle(
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                );
+                              }
+                            },
+                          )
+                        ],
+                      ),
+                    ),
+                    HorizontalGap(),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          const Text(
+                            'Count',
+                            textAlign: TextAlign.left,
+                          ),
+                          CustomTextFormField(
+                            controller: countController,
+                            isNumber: true,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                VerticleGap(),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: CustomButton(
+                        onPressed: () async {
+                          if (nameController.text.isNotEmpty &&
+                              countController.text.isNotEmpty &&
+                              int.tryParse(countController.text) != null &&
+                              selectedFoodItem != null) {
+                            await DatabaseHelper.instance.insertOrder({
+                              DatabaseHelper.ordersColumnName:
+                                  nameController.text,
+                              DatabaseHelper.ordersColumnFoodId:
+                                  selectedFoodItem!.id,
+                              DatabaseHelper.ordersColumnCount:
+                                  int.parse(countController.text),
+                            });
+
+                            nameController.clear();
+                            countController.text = '1';
+                            setState(() {});
+                          }
+                        },
+                        buttonText: 'Add',
+                      ),
+                    ),
+                    HorizontalGap(),
+                    Expanded(
+                      child: CustomButton(
+                        onPressed: () => {
+                          nameController.clear(),
+                          countController.text = '1',
+                        },
+                        buttonText: 'Clear',
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      'Recent Orders',
+                      style: TextStyle(
+                        fontStyle: FontStyle.italic,
+                      ),
+                    ),
+                    CustomButton(
+                      onPressed: () {
+                        setState(() {});
+                      },
+                      buttonText: 'Refresh',
+                    )
+                  ],
+                ),
+                const Divider(),
               ],
             ),
           ),
@@ -77,101 +240,65 @@ class AddOrderPage extends StatelessWidget {
             ),
           ),
           Expanded(
-            child: ListView.builder(
-              itemCount: recentOrders.length,
-              itemBuilder: (context, index) {
-                return ListTile(
-                  visualDensity: VisualDensity.compact,
-                  title: Row(
-                    children: [
-                      Expanded(
-                        flex: 2,
-                        child: Text(
-                          recentOrders[index].name,
+            child: FutureBuilder<List<Order>>(
+              future: getRecentOrdersFromDB(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                } else if (snapshot.hasError) {
+                  return Text('Error: ${snapshot.error}');
+                } else if (snapshot.data!.isEmpty) {
+                  return const Center(child: Text('No data'));
+                } else {
+                  recentOrders = snapshot.data!;
+                  return ListView.builder(
+                    itemCount: recentOrders.length,
+                    itemBuilder: (context, index) {
+                      return ListTile(
+                        visualDensity: VisualDensity.compact,
+                        title: Row(
+                          children: [
+                            Expanded(
+                              flex: 2,
+                              child: Text(
+                                recentOrders[index].name,
+                              ),
+                            ),
+                            Expanded(
+                              flex: 1,
+                              child: Text(
+                                "${getFoodItemName(recentOrders[index].foodId, foodItems)} x ${recentOrders[index].count.toString()}",
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                          ],
                         ),
-                      ),
-                      Expanded(
-                        flex: 1,
-                        child: Text(
-                          "${recentOrders[index].foodItem.name} x ${recentOrders[index].count.toString()}",
-                          textAlign: TextAlign.center,
-                        ),
-                      ),
-                    ],
-                  ),
-                );
+                      );
+                    },
+                  );
+                }
               },
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                const Text(
-                  'Add',
-                  textAlign: TextAlign.left,
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                VerticleGap(),
-                const Text('Name'),
-                CustomTextFormField(),
-                VerticleGap(),
-                Row(
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          const Text(
-                            'Item',
-                            textAlign: TextAlign.left,
-                          ),
-                          CustomTextFormField(),
-                        ],
-                      ),
-                    ),
-                    HorizontalGap(),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          const Text(
-                            'Count',
-                            textAlign: TextAlign.left,
-                          ),
-                          CustomTextFormField(),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-                VerticleGap(),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: CustomButton(
-                        onPressed: () => {},
-                        buttonText: 'Add',
-                      ),
-                    ),
-                    HorizontalGap(),
-                    Expanded(
-                      child: CustomButton(
-                        onPressed: () => {},
-                        buttonText: 'Clear',
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          )
         ],
+      ),
+      bottomNavigationBar: BottomAppBar(
+        padding: const EdgeInsets.symmetric(
+          horizontal: 8,
+        ),
+        height: 60,
+        child: Row(
+          children: [
+            Expanded(
+              child: CustomButton(
+                onPressed: () => {
+                  Navigator.pushNamed(context, '/order-list'),
+                },
+                buttonText: 'Order List',
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

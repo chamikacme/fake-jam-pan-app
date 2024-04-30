@@ -1,3 +1,4 @@
+import 'package:fake_jam_pan/pages/AddFoodItem.dart';
 import 'package:fake_jam_pan/pages/AddOrderPage.dart';
 import 'package:fake_jam_pan/pages/FoodItemsPage.dart';
 import 'package:fake_jam_pan/pages/HomePage.dart';
@@ -22,8 +23,9 @@ class MyApp extends StatelessWidget {
       routes: {
         '/': (context) => const HomePage(),
         '/food-items': (context) => const FoodItemsPage(),
-        '/add-order': (context) => const AddOrderPage(),
-        '/order-list': (context) => const OrderListPage(),
+        '/add-food-item': (context) => AddFoodItemsPage(),
+        '/add-order': (context) => AddOrderPage(),
+        '/order-list': (context) => OrderListPage(),
       },
       debugShowCheckedModeBanner: false,
     );
