@@ -37,37 +37,50 @@ class AddFoodItemsPage extends StatelessWidget {
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: Text(id == null ? 'Add Food Item' : 'Edit Food Item'),
       ),
-      body: Column(
-        children: [
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  const Text(
-                    'Name',
-                    textAlign: TextAlign.left,
-                  ),
-                  CustomTextFormField(
-                    controller: nameController,
-                  ),
-                  VerticleGap(),
-                  const Text(
-                    'Price',
-                    textAlign: TextAlign.left,
-                  ),
-                  CustomTextFormField(
-                    controller: priceController,
-                    isNumber: true,
-                  ),
-                ],
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Color.fromARGB(255, 255, 223, 195),
+              Colors.white,
+            ],
+          ),
+        ),
+        child: Column(
+          children: [
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    const Text(
+                      'Name',
+                      textAlign: TextAlign.left,
+                    ),
+                    CustomTextFormField(
+                      controller: nameController,
+                    ),
+                    VerticleGap(),
+                    const Text(
+                      'Price',
+                      textAlign: TextAlign.left,
+                    ),
+                    CustomTextFormField(
+                      controller: priceController,
+                      isNumber: true,
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
       bottomNavigationBar: BottomAppBar(
+        surfaceTintColor: Colors.white,
         padding: const EdgeInsets.symmetric(
           horizontal: 8,
         ),

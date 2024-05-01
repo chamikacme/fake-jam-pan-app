@@ -13,56 +13,69 @@ class FoodItemsPage extends StatelessWidget {
           title: const Text(
             'Food Items',
           )),
-      body: Column(
-        children: [
-          Expanded(
-            child: FutureBuilder<List<Map<String, dynamic>>>(
-              future: DatabaseHelper.instance.getAllFood(),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.done) {
-                  if (snapshot.hasError) {
-                    return Center(child: Text('Error: ${snapshot.error}'));
-                  }
-                  List<Map<String, dynamic>> foods = snapshot.data!;
-                  if (foods.isEmpty) {
-                    return const Center(child: Text('No data'));
-                  }
-                  return ListView.builder(
-                    itemCount: foods.length,
-                    itemBuilder: (context, index) {
-                      return ListTile(
-                        onTap: () => {
-                          Navigator.pushNamed(
-                            context,
-                            '/add-food-item',
-                            arguments: {
-                              'id': foods[index]['_id'],
-                              'name': foods[index]['name'],
-                              'price': foods[index]['price'],
-                            },
-                          ),
-                        },
-                        title: Text(foods[index]['name']),
-                        subtitle: Text(
-                          'Rs. ${foods[index]['price'].toStringAsFixed(2)}',
-                        ),
-                        trailing: const Icon(
-                          Icons.dining,
-                        ),
-                      );
-                    },
-                  );
-                } else {
-                  return const Center(
-                    child: CircularProgressIndicator(),
-                  );
-                }
-              },
-            ),
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Color.fromARGB(255, 255, 223, 195),
+              Colors.white,
+            ],
           ),
-        ],
+        ),
+        child: Column(
+          children: [
+            Expanded(
+              child: FutureBuilder<List<Map<String, dynamic>>>(
+                future: DatabaseHelper.instance.getAllFood(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.done) {
+                    if (snapshot.hasError) {
+                      return Center(child: Text('Error: ${snapshot.error}'));
+                    }
+                    List<Map<String, dynamic>> foods = snapshot.data!;
+                    if (foods.isEmpty) {
+                      return const Center(child: Text('No data'));
+                    }
+                    return ListView.builder(
+                      itemCount: foods.length,
+                      itemBuilder: (context, index) {
+                        return ListTile(
+                          onTap: () => {
+                            Navigator.pushNamed(
+                              context,
+                              '/add-food-item',
+                              arguments: {
+                                'id': foods[index]['_id'],
+                                'name': foods[index]['name'],
+                                'price': foods[index]['price'],
+                              },
+                            ),
+                          },
+                          title: Text(foods[index]['name']),
+                          subtitle: Text(
+                            'Rs. ${foods[index]['price'].toStringAsFixed(2)}',
+                          ),
+                          trailing: const Icon(
+                            Icons.dining,
+                          ),
+                        );
+                      },
+                    );
+                  } else {
+                    return const Center(
+                      child: CircularProgressIndicator(),
+                    );
+                  }
+                },
+              ),
+            ),
+          ],
+        ),
       ),
       bottomNavigationBar: BottomAppBar(
+        surfaceTintColor: Colors.white,
         padding: const EdgeInsets.symmetric(
           horizontal: 8,
         ),
