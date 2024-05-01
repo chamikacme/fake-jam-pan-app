@@ -107,9 +107,33 @@ class AddFoodItemsPage extends StatelessWidget {
               Expanded(
                 child: CustomButton(
                   onPressed: () async {
-                    await DatabaseHelper.instance.deleteFood(id);
-                    Navigator.pop(context);
-                    Navigator.pushReplacementNamed(context, '/food-items');
+                    showDialog(
+                      context: context,
+                      builder: (context) {
+                        return AlertDialog(
+                          title: const Text('Delete Food Item'),
+                          content: const Text(
+                              'Are you sure you want to delete this food item?'),
+                          actions: [
+                            TextButton(
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                              },
+                              child: const Text('Cancel'),
+                            ),
+                            TextButton(
+                              onPressed: () async {
+                                await DatabaseHelper.instance.deleteFood(id);
+                                Navigator.of(context).pop();
+                                Navigator.pushReplacementNamed(
+                                    context, '/food-items');
+                              },
+                              child: const Text('Delete'),
+                            ),
+                          ],
+                        );
+                      },
+                    );
                   },
                   buttonText: 'Delete',
                 ),

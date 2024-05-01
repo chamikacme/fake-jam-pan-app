@@ -42,7 +42,6 @@ class _OrderListPageState extends State<OrderListPage> {
 
   void _performSearch() {
     setState(() {
-      // filter the orders based on the query and sort them by isIssued
       filteredOrders = orders
           .where((order) => order.name
               .toLowerCase()
