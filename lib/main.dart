@@ -3,6 +3,7 @@ import 'package:fake_jam_pan/pages/AddOrderPage.dart';
 import 'package:fake_jam_pan/pages/FoodItemsPage.dart';
 import 'package:fake_jam_pan/pages/HomePage.dart';
 import 'package:fake_jam_pan/pages/OrderListPage.dart';
+import 'package:fake_jam_pan/pages/SplashScreenPage.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -20,7 +21,9 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.orange),
         useMaterial3: true,
       ),
+      initialRoute: '/splash-screen',
       routes: {
+        '/splash-screen': (context) => const SplashScreenPage(),
         '/': (context) => const HomePage(),
         '/food-items': (context) => const FoodItemsPage(),
         '/add-food-item': (context) => AddFoodItemsPage(),
