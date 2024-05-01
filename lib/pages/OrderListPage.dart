@@ -135,107 +135,110 @@ class _OrderListPageState extends State<OrderListPage> {
                       : ListView.builder(
                           itemCount: filteredOrders.length,
                           itemBuilder: (context, index) {
-                            return ListTile(
-                              visualDensity: VisualDensity.compact,
-                              tileColor: filteredOrders[index].isIssued
-                                  ? Colors.amber[100]
+                            return Container(
+                              color: filteredOrders[index].isIssued
+                                  ? Colors.orange[300]
                                   : null,
-                              title: Row(
-                                children: [
-                                  Expanded(
-                                    flex: 1,
-                                    child: Text(
-                                      filteredOrders[index].name,
+                              child: ListTile(
+                                visualDensity: VisualDensity.compact,
+                                title: Row(
+                                  children: [
+                                    Expanded(
+                                      flex: 1,
+                                      child: Text(
+                                        filteredOrders[index].name,
+                                      ),
                                     ),
-                                  ),
-                                  Expanded(
-                                    flex: 1,
-                                    child: Text(
-                                      "${getFoodItemName(filteredOrders[index].foodId, food)} x ${filteredOrders[index].count.toString()}",
-                                      textAlign: TextAlign.center,
+                                    Expanded(
+                                      flex: 1,
+                                      child: Text(
+                                        "${getFoodItemName(filteredOrders[index].foodId, food)} x ${filteredOrders[index].count.toString()}",
+                                        textAlign: TextAlign.center,
+                                      ),
                                     ),
-                                  ),
-                                  Expanded(
-                                    flex: 1,
-                                    child: Row(
-                                      children: [
-                                        IconButton(
-                                          onPressed: () async {
-                                            showDialog(
-                                              context: context,
-                                              builder: (context) {
-                                                return AlertDialog(
-                                                  title: const Text(
-                                                      'Delete Order'),
-                                                  content: const Text(
-                                                      'Are you sure you want to delete this order?'),
-                                                  actions: [
-                                                    TextButton(
-                                                      onPressed: () {
-                                                        Navigator.of(context)
-                                                            .pop();
-                                                      },
-                                                      child:
-                                                          const Text('Cancel'),
-                                                    ),
-                                                    TextButton(
-                                                      onPressed: () async {
-                                                        await DatabaseHelper
-                                                            .instance
-                                                            .deleteOrder(
+                                    Expanded(
+                                      flex: 1,
+                                      child: Row(
+                                        children: [
+                                          IconButton(
+                                            onPressed: () async {
+                                              showDialog(
+                                                context: context,
+                                                builder: (context) {
+                                                  return AlertDialog(
+                                                    title: const Text(
+                                                        'Delete Order'),
+                                                    content: const Text(
+                                                        'Are you sure you want to delete this order?'),
+                                                    actions: [
+                                                      TextButton(
+                                                        onPressed: () {
+                                                          Navigator.of(context)
+                                                              .pop();
+                                                        },
+                                                        child: const Text(
+                                                            'Cancel'),
+                                                      ),
+                                                      TextButton(
+                                                        onPressed: () async {
+                                                          await DatabaseHelper
+                                                              .instance
+                                                              .deleteOrder(
+                                                                  filteredOrders[
+                                                                          index]
+                                                                      .id!);
+                                                          setState(() {
+                                                            orders.remove(
                                                                 filteredOrders[
-                                                                        index]
-                                                                    .id!);
-                                                        setState(() {
-                                                          orders.remove(
-                                                              filteredOrders[
-                                                                  index]);
-                                                          filteredOrders
-                                                              .removeAt(index);
-                                                        });
-                                                        Navigator.of(context)
-                                                            .pop();
-                                                      },
-                                                      child:
-                                                          const Text('Delete'),
-                                                    )
-                                                  ],
-                                                );
-                                              },
-                                            );
-                                          },
-                                          icon: const Icon(
-                                            Icons.delete,
-                                            color: Colors.red,
+                                                                    index]);
+                                                            filteredOrders
+                                                                .removeAt(
+                                                                    index);
+                                                          });
+                                                          Navigator.of(context)
+                                                              .pop();
+                                                        },
+                                                        child: const Text(
+                                                            'Delete'),
+                                                      )
+                                                    ],
+                                                  );
+                                                },
+                                              );
+                                            },
+                                            icon: const Icon(
+                                              Icons.delete,
+                                              color: Colors.red,
+                                            ),
                                           ),
-                                        ),
-                                        IconButton(
-                                          onPressed: () async {
-                                            await DatabaseHelper.instance
-                                                .issueOrder(
-                                                    filteredOrders[index].id!,
-                                                    filteredOrders[index]
-                                                            .isIssued
-                                                        ? 0
-                                                        : 1);
-                                            setState(() {
-                                              filteredOrders[index].isIssued =
-                                                  !filteredOrders[index]
-                                                      .isIssued;
-                                            });
-                                            _performSearch();
-                                          },
-                                          icon: Icon(
-                                            filteredOrders[index].isIssued
-                                                ? Icons.undo
-                                                : Icons.check,
-                                            color: Colors.blue,
-                                          ),
-                                        )
-                                      ],
-                                    ),
-                                  )
-                                ],
+                                          IconButton(
+                                            onPressed: () async {
+                                              await DatabaseHelper.instance
+                                                  .issueOrder(
+                                                      filteredOrders[index].id!,
+                                                      filteredOrders[index]
+                                                              .isIssued
+                                                          ? 0
+                                                          : 1);
+                                              setState(() {
+                                                filteredOrders[index].isIssued =
+                                                    !filteredOrders[index]
+                                                        .isIssued;
+                                              });
+                                              _performSearch();
+                                            },
+                                            icon: Icon(
+                                              filteredOrders[index].isIssued
+                                                  ? Icons.undo
+                                                  : Icons.check,
+                                              color: Colors.blue,
+                                            ),
+                                          )
+                                        ],
+                                      ),
+                                    )
+                                  ],
+                                ),
                               ),
                             );
                           },
