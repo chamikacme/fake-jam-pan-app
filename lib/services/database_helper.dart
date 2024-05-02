@@ -44,7 +44,7 @@ class DatabaseHelper {
   Future _onCreate(Database db, int version) async {
     await db.execute('''
           CREATE TABLE $table (
-            $columnId INTEGER PRIMARY KEY,
+            $columnId INTEGER PRIMARY KEY AUTOINCREMENT,
             $columnName TEXT NOT NULL,
             $columnPrice REAL NOT NULL
           )
@@ -52,7 +52,7 @@ class DatabaseHelper {
 
     await db.execute('''
           CREATE TABLE $ordersTable (
-            $ordersColumnId INTEGER PRIMARY KEY,
+            $ordersColumnId INTEGER PRIMARY KEY AUTOINCREMENT,
             $ordersColumnName TEXT NOT NULL,
             $ordersColumnFoodId INTEGER,
             $ordersColumnCount INTEGER NOT NULL,
@@ -81,6 +81,8 @@ class DatabaseHelper {
 
   Future<int> deleteFood(int id) async {
     Database db = await instance.database;
+    await db
+        .delete(ordersTable, where: '$ordersColumnFoodId = ?', whereArgs: [id]);
     return await db.delete(table, where: '$columnId = ?', whereArgs: [id]);
   }
 

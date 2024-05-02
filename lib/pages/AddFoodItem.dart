@@ -126,7 +126,7 @@ class AddFoodItemsPage extends StatelessWidget {
                         return AlertDialog(
                           title: const Text('Delete Food Item'),
                           content: const Text(
-                              'Are you sure you want to delete this food item?'),
+                              'Are you sure you want to delete this food item and all the orders made for this item?'),
                           actions: [
                             TextButton(
                               onPressed: () {
@@ -137,6 +137,7 @@ class AddFoodItemsPage extends StatelessWidget {
                             TextButton(
                               onPressed: () async {
                                 await DatabaseHelper.instance.deleteFood(id);
+                                Navigator.of(context).pop();
                                 Navigator.of(context).pop();
                                 Navigator.pushReplacementNamed(
                                     context, '/food-items');
